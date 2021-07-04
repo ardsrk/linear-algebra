@@ -35,6 +35,7 @@ class Vector
   end
 
   # Dot product, Inner scalar, or projection product
+  # See Vector#angle
   def dot(av)
     if self.count != av.count
       raise "Length of vectors are not the same."
@@ -48,15 +49,26 @@ class Vector
   def size
     Math.sqrt(dot(self))
   end
+
+  # Angle between vectors in degrees.
+  # Cosine rule: r . s = |r||s|cos(theta)
+  # The cosine rule implies that dot product of two
+  # orthogonal vectors is zero.
+  def angle(av)
+    cos_t = self.dot(av)/(size * av.size)
+    angle_in_radians = Math.acos(cos_t)
+    (180/Math::PI) * angle_in_radians
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
-  r = Vector.new([3,4])
-  s = Vector.new([5,6])
-  puts "r       = #{r}"
-  puts "r + r   = #{r + r}"
-  puts "r * 2   = #{r * 2}"
-  puts "s       = #{s}"
-  puts "r . s   = #{r.dot(s)}"
-  puts "size(r) = #{r.size}"
+  r = Vector.new([1,0])
+  s = Vector.new([0,1])
+  puts "r          = #{r}"
+  puts "s          = #{s}"
+  puts "r + r      = #{r + r}"
+  puts "r * 2      = #{r * 2}"
+  puts "r . s      = #{r.dot(s)}"
+  puts "size(r)    = #{r.size}"
+  puts "r.angle(s) = #{r.angle(s)}"
 end
