@@ -59,6 +59,14 @@ class Vector
     angle_in_radians = Math.acos(cos_t)
     (180/Math::PI) * angle_in_radians
   end
+
+  def scalar_projection_on(av)
+    av.dot(self) / av.size.to_f
+  end
+
+  def vector_projection_on(av)
+    av * (scalar_projection_on(av) / av.size)
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
@@ -71,4 +79,12 @@ if $PROGRAM_NAME == __FILE__
   puts "r . s      = #{r.dot(s)}"
   puts "size(r)    = #{r.size}"
   puts "r.angle(s) = #{r.angle(s)}"
+
+  puts "\n\n==== Projection ====\n\n"
+  r = Vector.new([2,2])
+  s = Vector.new([1,1])
+  puts "r = #{r}"
+  puts "s = #{s}"
+  puts "Scalar projection of s on r = #{s.scalar_projection_on(r)}"
+  puts "Vector projection of s on r = #{s.vector_projection_on(r)}"
 end
