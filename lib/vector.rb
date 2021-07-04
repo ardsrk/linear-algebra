@@ -67,6 +67,14 @@ class Vector
   def vector_projection_on(av)
     av * (scalar_projection_on(av) / av.size)
   end
+
+  # Change of basis from [1,0] and [0,1] to v1 and v2
+  def to_basis(v1, v2)
+    projection_on_v1 = self.vector_projection_on(v1)
+    projection_on_v2 = self.vector_projection_on(v2)
+
+    Vector.new([projection_on_v1.size / v1.size, projection_on_v2.size / v2.size])
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
@@ -87,4 +95,15 @@ if $PROGRAM_NAME == __FILE__
   puts "s = #{s}"
   puts "Scalar projection of s on r = #{s.scalar_projection_on(r)}"
   puts "Vector projection of s on r = #{s.vector_projection_on(r)}"
+
+
+  puts "\n\n==== Change of Basis ====\n\n"
+
+  v1 = Vector.new([2,1])
+  v2 = Vector.new([-2,4])
+  r = Vector.new([3,4])
+  puts "r  = #{r}"
+  puts "v1 = #{v1}"
+  puts "v2 = #{v2}"
+  puts "r in basis v1 and v2 = #{r.to_basis(v1, v2)}"
 end
