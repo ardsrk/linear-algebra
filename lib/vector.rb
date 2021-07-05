@@ -7,6 +7,10 @@ module Nearli
       @vector = vector
     end
 
+    def at(i)
+      @vector[i]
+    end
+
     def each(&block)
       if block_given?
         @vector.each { |el| yield(el) }
