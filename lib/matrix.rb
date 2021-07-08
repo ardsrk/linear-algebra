@@ -8,8 +8,17 @@ module Nearli
     def initialize(rows)
       @row_vectors =
         rows.collect do |row|
-          RowVector.new(row)
+          if RowVector === row
+            row
+          else
+            RowVector.new(row)
+          end
         end
+    end
+
+    def dup
+      rows = @row_vectors.collect {|v| v.dup}
+      Matrix.new(rows)
     end
 
     def columns
@@ -65,6 +74,72 @@ module Nearli
         end
       end)
     end
+
+    def swap!(i, j)
+      puts "swap row #{i} and #{j}" if $DEBUG
+      tmp = @row_vectors[i]
+      @row_vectors[i] = @row_vectors[j]
+      @row_vectors[j] = tmp
+      puts "#{self}" if $DEBUG
+    end
+
+    def scale!(r, j)
+      val = at(r, j)
+      puts "Divide row #{r} by #{val} @(#{r},#{j}); " if $DEBUG
+      @row_vectors[r].collect! do |el|
+        Rational(el, val)
+      end
+      puts "#{self}" if $DEBUG
+    end
+
+    def reduce!(k, j, r)
+      val = -at(k, j)
+      scaled_r = @row_vectors[r].collect do |el|
+        val * el
+      end
+
+      puts "reduce row #{k} by #{val} * #{@row_vectors[r]}. r = #{r}" if $DEBUG
+      @row_vectors[k].collect!.with_index do |el, i|
+        rat = Rational(scaled_r[i] + el)
+      end
+      puts "#{self}" if $DEBUG
+    end
+
+    def remove_denominators!
+      0.upto(@row_vectors.count - 1) do |i|
+        @row_vectors[i].collect!.with_index do |el, i|
+          case el.class.name
+          when "Rational"
+            (el.denominator == 1) ? el.numerator : el
+          else
+            el
+          end
+        end
+      end
+    end
+
+    def row_reduce
+      a = self.dup
+      r = -1 
+      a.columns.times do |j|
+        i = r + 1
+        while i < a.rows and a.at(i,j) == 0
+          i = i + 1
+        end
+        if i < a.rows
+          r = r + 1
+          a.swap!(i, r) if i != r
+          a.scale!(r, j)
+          0.upto(a.rows-1) do |k|
+            if k != r
+              a.reduce!(k, j, r)
+            end
+          end
+        end
+      end
+      a.remove_denominators!
+      return r, a
+    end
   end
 end
 
@@ -78,5 +153,14 @@ if $PROGRAM_NAME == __FILE__
   puts "v         = #{v}"
   puts "n*v       = #{n*v}"
   puts "n*n       = \n#{n*n}"
-end
 
+  puts "==== Row Reduce Echelon Form"
+  a = Nearli::Matrix.new [
+    [-7, -6, -12, -33],
+    [5, 5, 7, 24],
+    [1, 0, 4, 5]
+  ]
+  puts "a = \n#{a}"
+  r, ra = a.row_reduce
+  puts "Row Reduced form of a = \n#{ra}"
+end
